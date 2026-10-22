@@ -1,0 +1,23 @@
+# Normalize line endings: Docker builds, Alpine entrypoints and runner
+# scripts must never receive CRLF (hidden \r causes script/syntax failures
+# when the repo is checked out or extracted on Windows).
+* text=auto eol=lf
+
+# Force LF for shell + container-critical formats
+*.sh text eol=lf
+*.ps1 text eol=lf
+Dockerfile* text eol=lf
+*.dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+*.env text eol=lf
+package-lock.json text eol=lf
+
+# Windows-native batch scripts require CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.zip binary
+*.wasm binary

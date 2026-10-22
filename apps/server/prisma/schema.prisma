@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum Language {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  MARKDOWN
+}
+
+model User {
+  id          String          @id
+  username    String          @unique
+  email       String          @unique
+  avatarColor String          @default("#6366f1")
+  createdAt   DateTime        @default(now())
+  memberships ProjectMember[]
+  snapshots   Snapshot[]
+  messages    ChatMessage[]
+}
+
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  inviteCode  String          @unique @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  members     ProjectMember[]
+  files       ProjectFile[]
+  snapshots   Snapshot[]
+  messages    ChatMessage[]
+
+  @@index([inviteCode])
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      Role     @default(EDITOR)
+  joinedAt  DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+}
+
+model ProjectFile {
+  id        String   @id @default(uuid())
+  projectId String
+  path      String
+  language  Language @default(TYPESCRIPT)
+  yjsState  Bytes?
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshots Snapshot[]
+
+  @@unique([projectId, path])
+  @@index([projectId])
+}
+
+model Snapshot {
+  id           String      @id @default(uuid())
+  projectId    String
+  fileId       String
+  createdById  String
+  label        String
+  yjsBinary    Bytes
+  readableText String
+  createdAt    DateTime    @default(now())
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  file         ProjectFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdBy    User        @relation(fields: [createdById], references: [id])
+
+  @@index([fileId, createdAt(sort: Desc)])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt(sort: Asc)])
+}

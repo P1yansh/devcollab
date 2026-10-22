@@ -1,0 +1,13 @@
+# DevCollab sandboxed execution runner - Python.
+FROM python:3.12-alpine
+
+RUN addgroup -g 10001 sandbox && \
+    adduser -S -u 10001 -G sandbox -h /home/sandbox sandbox && \
+    mkdir -p /tmp /home/sandbox && \
+    chmod 1777 /tmp && \
+    chown 10001:10001 /home/sandbox
+
+USER 10001:10001
+WORKDIR /home/sandbox
+
+CMD ["python3"]

@@ -1,0 +1,53 @@
+# ====================================================================
+# Render Infrastructure Blueprint for DevCollab
+# Deploys unified Web Service (React UI + Express REST + Socket.IO + Yjs)
+# along with Managed PostgreSQL and Redis.
+# ====================================================================
+
+services:
+  - type: web
+    name: devcollab
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npx --workspace=@devcollab/server prisma generate --schema=apps/server/prisma/schema.prisma && npm run build
+    startCommand: npx --workspace=@devcollab/server prisma migrate deploy --schema=apps/server/prisma/schema.prisma && node apps/server/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: YJS_WS_PORT
+        value: 10000
+      - key: SINGLE_PORT
+        value: "true"
+      - key: EXECUTION_BACKEND
+        value: piston
+      - key: PISTON_API_URL
+        value: https://emkc.org/api/v2/piston/execute
+      - key: DATABASE_URL
+        fromDatabase:
+          name: devcollab-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: devcollab-redis
+          type: redis
+          property: connectionString
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        value: gemini-1.5-flash
+
+  - type: redis
+    name: devcollab-redis
+    plan: free
+    region: oregon
+    ipAllowList: [] # internal access only
+
+databases:
+  - name: devcollab-db
+    databaseName: devcollab
+    user: devcollab
+    plan: free
+    region: oregon
