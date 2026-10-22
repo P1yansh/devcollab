@@ -146,10 +146,13 @@ export interface ExecutionRequest {
   fileId: string;
 }
 
+export type ExecutionBackend = 'docker' | 'piston' | 'judge0' | 'wandbox';
+
 export interface ExecutionStartedEvent {
   executionId: string;
   language: Language;
-  backend?: 'docker' | 'piston';
+  /** Configured backend reported before dispatch ('auto' means a fallback chain may engage). */
+  backend?: ExecutionBackend | 'auto';
   startedBy: { userId: string; username: string; avatarColor: string };
 }
 
@@ -160,6 +163,8 @@ export interface ExecutionOutputEvent {
 
 export interface ExecutionExitEvent {
   executionId: string;
+  /** Backend that ACTUALLY ran the code (may differ from the started badge when fallbacks engage). */
+  backend?: ExecutionBackend;
   exitCode: number;
   durationMs: number;
   timedOut: boolean;

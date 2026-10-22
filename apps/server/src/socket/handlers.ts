@@ -459,11 +459,11 @@ export function registerSocketHandlers(
 
       const executionId = crypto.randomUUID();
 
-      const activeBackend = env.EXECUTION_BACKEND === 'piston' ? 'piston' : 'docker';
+      const configuredBackend = env.EXECUTION_BACKEND;
       io.to(`project:${parsed.data.projectId}`).emit('execution:started', {
         executionId,
         language: file.language,
-        backend: activeBackend,
+        backend: configuredBackend === 'auto' ? 'auto' : configuredBackend,
         startedBy: {
           userId: persona.id,
           username: persona.username,
@@ -491,6 +491,9 @@ export function registerSocketHandlers(
 
         io.to(`project:${parsed.data.projectId}`).emit('execution:exit', {
           executionId,
+          // The backend that ACTUALLY ran the code (fixed in dispatch), which
+          // may differ from the configured one when a fallback chain engaged.
+          backend: res.backend,
           exitCode: res.exitCode,
           durationMs: res.durationMs,
           timedOut: res.timedOut,

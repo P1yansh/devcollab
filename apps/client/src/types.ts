@@ -6,6 +6,7 @@ import type {
   PeerPresence,
   Role,
   SnapshotMeta,
+  ExecutionBackend,
 } from '@devcollab/shared';
 
 export interface ChatItem {
@@ -24,7 +25,7 @@ export interface ExecutionState {
   output: string;
   exitCode: number | null;
   durationMs: number | null;
-  backend?: 'docker' | 'piston';
+  backend?: ExecutionBackend | 'auto';
   startedBy?: { username: string; avatarColor: string };
   errorMessage?: string;
 }

@@ -1,6 +1,39 @@
 import React from 'react';
 import type { ExecutionState } from '../../types.js';
 
+/** Honest label + color for whatever backend actually executed the code. */
+function backendLabel(backend: string): string {
+  switch (backend) {
+    case 'piston':
+      return 'PISTON (Cloud)';
+    case 'judge0':
+      return 'JUDGE0 (Cloud)';
+    case 'wandbox':
+      return 'WANDBOX (Cloud)';
+    case 'auto':
+      return 'CLOUD (Fallback)';
+    default:
+      return 'DOCKER (Isolated)';
+  }
+}
+
+function backendShortLabel(backend: string): string {
+  switch (backend) {
+    case 'piston':
+      return 'PISTON';
+    case 'judge0':
+      return 'JUDGE0';
+    case 'wandbox':
+      return 'WANDBOX';
+    case 'auto':
+      return 'AUTO';
+    default:
+      return 'DOCKER';
+  }
+}
+
+const CLOUD_BACKENDS = new Set(['piston', 'judge0', 'wandbox', 'auto']);
+
 interface ExecutionDrawerProps {
   execution: ExecutionState;
   onClear: () => void;
@@ -39,13 +72,13 @@ export const ExecutionDrawer: React.FC<ExecutionDrawerProps> = ({
               style={{
                 padding: '1px 5px',
                 borderRadius: '3px',
-                backgroundColor: execution.backend === 'piston' ? '#0369a1' : '#334155',
+                backgroundColor: CLOUD_BACKENDS.has(execution.backend) ? '#0369a1' : '#334155',
                 color: '#f8fafc',
                 fontSize: '10px',
                 fontWeight: 600,
               }}
             >
-              {execution.backend === 'piston' ? 'PISTON' : 'DOCKER'}
+              {backendShortLabel(execution.backend)}
             </span>
           )}
           {execution.status === 'running' && (
@@ -132,13 +165,13 @@ export const ExecutionDrawer: React.FC<ExecutionDrawerProps> = ({
               style={{
                 padding: '2px 8px',
                 borderRadius: '4px',
-                backgroundColor: execution.backend === 'piston' ? '#0369a1' : '#334155',
+                backgroundColor: CLOUD_BACKENDS.has(execution.backend) ? '#0369a1' : '#334155',
                 color: '#f8fafc',
                 fontSize: '11px',
                 fontWeight: 700,
               }}
             >
-              RUNNER: {execution.backend === 'piston' ? 'PISTON (Cloud)' : 'DOCKER (Isolated)'}
+              RUNNER: {backendLabel(execution.backend)}
             </span>
           )}
           {execution.startedBy && (

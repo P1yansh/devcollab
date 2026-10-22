@@ -235,11 +235,14 @@ export const ProjectView: React.FC = () => {
           ? {
               ...prev,
               status: payload.timedOut ? 'timedOut' : 'completed',
+              // Correction to the pre-dispatch badge: dispatch may fall back
+              // to a different backend than the one shown when the run started.
+              backend: payload.backend ?? prev.backend,
               exitCode: payload.exitCode,
               durationMs: payload.durationMs,
               output:
                 prev.output +
-                `\n=== [Exited with code ${payload.exitCode} in ${payload.durationMs}ms${payload.timedOut ? ' (TIMED OUT - KILLED)' : ''}] ===\n`,
+                `\n=== [Exited with code ${payload.exitCode} in ${payload.durationMs}ms${payload.timedOut ? ' (TIMED OUT - KILLED)' : ''}${payload.backend ? ` via ${payload.backend.toUpperCase()}` : ''}] ===\n`,
             }
           : prev,
       );
