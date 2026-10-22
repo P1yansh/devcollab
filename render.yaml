@@ -24,7 +24,9 @@ services:
       - key: SINGLE_PORT
         value: "true"
       - key: EXECUTION_BACKEND
-        value: piston
+        value: wandbox
+      - key: WANDBOX_API_URL
+        value: https://wandbox.org/api/compile.json
       - key: PISTON_API_URL
         value: https://emkc.org/api/v2/piston/execute
       - key: DATABASE_URL

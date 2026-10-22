@@ -38,8 +38,13 @@ const envSchema = z.object({
   EXECUTION_CPU_QUOTA: z.coerce.number().int().positive().default(500_000_000),
   EXECUTION_PIDS_LIMIT: z.coerce.number().int().positive().default(64),
   DOCKER_SOCKET: z.string().min(1).optional(),
-  EXECUTION_BACKEND: z.enum(['docker', 'piston', 'auto']).default('docker'),
+  EXECUTION_BACKEND: z.enum(['docker', 'piston', 'judge0', 'wandbox', 'auto']).default('docker'),
   PISTON_API_URL: z.string().url().default('https://emkc.org/api/v2/piston/execute'),
+  JUDGE0_API_URL: z
+    .string()
+    .url()
+    .default('https://ce.judge0.com/submissions?base64_encoded=false&wait=true'),
+  WANDBOX_API_URL: z.string().url().default('https://wandbox.org/api/compile.json'),
 
   // AI Copilot
   AI_API_KEY: z.string().optional(),
