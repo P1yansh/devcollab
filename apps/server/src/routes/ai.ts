@@ -51,20 +51,30 @@ When asked to fix or write tests, provide concise explanations and enclose the p
   const userContent = `Action: ${action || 'custom'}
 ${language ? `Language: ${language}\n` : ''}${code ? `Current Code:\n\`\`\`\n${code}\n\`\`\`\n` : ''}User Prompt: ${prompt}`;
 
-  // Use OpenAI-compatible format (works with OpenAI, Groq, OpenRouter, and Gemini via v1beta/openai)
+  // OpenAI-compatible chat completion providers. The key prefix selects the
+  // endpoint: Gemini keys start with "AIza", Groq keys with "gsk_", everything
+  // else is assumed to be an OpenAI key. AI_MODEL overrides the default model
+  // of whichever provider is selected.
   const isGeminiKey = env.AI_API_KEY?.startsWith('AIza');
+  const isGroqKey = env.AI_API_KEY?.startsWith('gsk_');
   const endpoint = isGeminiKey
     ? 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
-    : 'https://api.openai.com/v1/chat/completions';
+    : isGroqKey
+      ? 'https://api.groq.com/openai/v1/chat/completions'
+      : 'https://api.openai.com/v1/chat/completions';
+  const defaultModel = isGeminiKey ? 'gemini-1.5-flash' : isGroqKey ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
 
+  // Never let a hung upstream block the request indefinitely; after the
+  // deadline the local copilot engine takes over as fallback.
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${env.AI_API_KEY}`,
     },
+    signal: AbortSignal.timeout(30_000),
     body: JSON.stringify({
-      model: env.AI_MODEL || (isGeminiKey ? 'gemini-1.5-flash' : 'gpt-4o-mini'),
+      model: env.AI_MODEL || defaultModel,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },
@@ -92,7 +102,7 @@ ${language ? `Language: ${language}\n` : ''}${code ? `Current Code:\n\`\`\`\n${c
   return {
     response: rawText,
     suggestedCode,
-    model: env.AI_MODEL || (isGeminiKey ? 'gemini-1.5-flash' : 'gpt-4o-mini'),
+    model: json.model || defaultModel,
   };
 }
 

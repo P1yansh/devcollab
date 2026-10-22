@@ -360,7 +360,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           onSubmit={(e) => {
             e.preventDefault();
             if (!prompt.trim() || loading) return;
-            requestCompletion('custom');
+            // Capture before clearing: requestCompletion reads the captured
+            // value via the explicit argument, not live state.
+            const text = prompt;
+            setPrompt('');
+            requestCompletion('custom', text);
           }}
           style={{ display: 'flex', gap: '8px' }}
         >
