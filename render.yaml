@@ -10,8 +10,8 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm ci && npx --workspace=@devcollab/server prisma generate --schema=apps/server/prisma/schema.prisma && npm run build
-    startCommand: npx --workspace=@devcollab/server prisma migrate deploy --schema=apps/server/prisma/schema.prisma && node apps/server/dist/index.js
+    buildCommand: npm ci && npm run db:generate && npm run build
+    startCommand: npm run db:deploy && npm start
     envVars:
       - key: NODE_ENV
         value: production

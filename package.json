@@ -15,7 +15,10 @@
     "package": "node scripts/run.mjs package-zip",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run --workspace=@devcollab/server db:generate",
+    "db:deploy": "npm run --workspace=@devcollab/server db:deploy",
+    "start": "node apps/server/dist/index.js"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

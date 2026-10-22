@@ -23,7 +23,7 @@ COPY apps/client apps/client/
 COPY apps/server apps/server/
 
 # Generate Prisma Client & compile all packages
-RUN npx --workspace=@devcollab/server prisma generate --schema=apps/server/prisma/schema.prisma
+RUN npm run db:generate
 RUN npm run build
 
 # --------------------------------------------------------------------
@@ -52,7 +52,7 @@ COPY apps/server/prisma apps/server/prisma/
 RUN npm ci --omit=dev
 
 # Generate Prisma Client for runtime
-RUN npx --workspace=@devcollab/server prisma generate --schema=apps/server/prisma/schema.prisma
+RUN npm run db:generate
 
 # Copy built distribution bundles
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
@@ -61,4 +61,4 @@ COPY --from=builder /app/apps/server/dist ./apps/server/dist
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "npx --workspace=@devcollab/server prisma migrate deploy --schema=apps/server/prisma/schema.prisma && node apps/server/dist/index.js"]
+CMD ["sh", "-c", "npm run db:deploy && npm start"]
