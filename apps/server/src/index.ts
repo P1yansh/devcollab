@@ -6,6 +6,7 @@ import cors from 'cors';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { storeErrorHandler, registerRouters } from './routes/index.js';
 import { createPrismaStores } from './store/index.js';
+import { ensurePersonaUsers } from './store/persona-bootstrap.js';
 import { createDocPubSub, attachRedisErrorLogging } from './config/redis.js';
 import { env, isDev } from './config/env.js';
 import { prisma } from './config/prisma.js';
@@ -19,6 +20,10 @@ let shuttingDown = false;
 
 export async function bootstrapServer(): Promise<void> {
   const stores = createPrismaStores();
+
+  // Persona identity is in-memory, but storage tables carry FKs into `User`.
+  // Ensure persona rows exist before any request hits a membership write.
+  await ensurePersonaUsers();
 
   // ------------------------------------------------------------------ Redis
   const { publisher, subscriber } = createDocPubSub(env.REDIS_URL);
