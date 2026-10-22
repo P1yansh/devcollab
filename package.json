@@ -20,7 +20,8 @@
     "db:deploy": "npm run --workspace=@devcollab/server db:deploy",
     "start": "node apps/server/dist/index.js"
   },
-  "devDependencies": {
+  "dependencies": {
     "typescript": "^5.6.3"
-  }
+  },
+  "devDependencies": {}
 }
